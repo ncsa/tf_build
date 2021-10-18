@@ -18,9 +18,3 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CUDA_DIR}/extras/CUPTI/lib64:${CUDA_
 
 export CC_OPT_FLAGS="-march=skylake-avx512 -O3"
 export wheel_arch_suffix="x86_64"
-
-export SCRATCH_DIR=/scratch/users/mkrafcz2
-export COCO_DIR=${SCRATCH_DIR}/COCO
-export IMAGENET_DIR=${SCRATCH_DIR}/ImageNet
-
-export MODEL_DIR=${SCRATCH_DIR}/deeplab2_model_dir
