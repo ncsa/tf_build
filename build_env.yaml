@@ -1,0 +1,17 @@
+prefix: "./venv"
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy ~= 1.19.2 # Needed for tensorflow 2.5.0 and others. Tehre seems to be breaking ABI changes for 1.20 and after
+  - bazel=3.7.2 # Needed to build tensorflow 2.5.0
+  - protobuf
+  - matplotlib
+  - pillow
+  - cython
+  - pip
+  - wheel
+  - cmake
+  - git # Need modern version of git to handle shallow copying submodules
+  - pip:
+    - keras_preprocessing
