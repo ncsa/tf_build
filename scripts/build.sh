@@ -48,7 +48,7 @@ export TF_CUDA_COMPUTE_CAPABILITIES=sm_70
 export CC=gcc
 export CXX=g++
 
-tensorflow_version="2.6.2"
+tensorflow_version="2.7.07"
 tensorflow_wheel="tensorflow-${tensorflow_version}-cp38-cp38-linux_${wheel_arch_suffix}.whl"
 tensorflow_c_pkg="libtensorflow.tar.gz"
 
