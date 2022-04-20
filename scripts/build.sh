@@ -6,9 +6,31 @@ set -e
 ##pip install /opt/TensorRT-8.0.0.3/python/tensorrt-8.0.0.3-cp39-none-linux_x86_64.whl
 #pip install /opt/TensorRT-8.0.0.3/python/tensorrt-8.0.0.3-cp38-none-linux_x86_64.whl
 
-CUR_DIR=$(pwd)
+# Version information
 
-cd ${CUR_DIR}/tensorflow
+tensorflow_version="2.7.0"
+tensorflow_wheel="tensorflow-${tensorflow_version}-cp38-cp38-linux_${wheel_arch_suffix}.whl"
+
+tensorflow_c_pkg="libtensorflow.tar.gz"
+
+tf_io_gcs_version="0.23.1"
+tf_io_gcs_wheel="tensorflow_io_gcs_filesystem-${tf_io_gcs_version}-cp38-cp38-linux_${wheel_arch_suffix}.whl"
+
+tf_text_version="2.7.3"
+tf_text_wheel="tensorflow_text-${tf_text_version}-cp38-cp38-linux_${wheel_arch_suffix}.whl"
+
+# Target product directory
+product_directory="build_tf${tensorflow_version}_py3.8_np1.19"
+
+TARGET_DIR=tensorflow_products/${product_directory}
+
+if [ ! -e ${TARGET_DIR} ]; then
+mkdir -p ${TARGET_DIR}
+fi;
+
+if [ ! -e ${TARGET_DIR}/${tensorflow_wheel} ] || [ ! -e ${TARGET_DIR}/${tensorflow_c_pkg} ]; then
+
+pushd tensorflow
 
 export USE_DEFAULT_PYTHON_LIB_PATH=1
 export TF_NEED_JEMALLOC=1
@@ -48,20 +70,6 @@ export TF_CUDA_COMPUTE_CAPABILITIES=sm_70
 export CC=gcc
 export CXX=g++
 
-tensorflow_version="2.7.0"
-tensorflow_wheel="tensorflow-${tensorflow_version}-cp38-cp38-linux_${wheel_arch_suffix}.whl"
-tensorflow_c_pkg="libtensorflow.tar.gz"
-
-# Target product directory
-product_directory="build_tf${tensorflow_version}_py3.8_np1.19"
-
-TARGET_DIR=${CUR_DIR}/tensorflow_products/${product_directory}
-
-if [ -e ${TARGET_DIR}/${tensorflow_wheel} ] && [ -e ${TARGET_DIR}/${tensorflow_c_pkg} ]; then
-    # It's already installed! Exit!
-    exit 0
-fi;
-
 # For now, be sure to use gcc-10 and g++-10! for configure
 if [ ! -e .tf_configure.bazelrc ]; then
 ## Maybe not? Currently we don't build with tensorrt support as it depends on cuda 10 and we're using cuda 11.
@@ -94,17 +102,44 @@ if [ ! -e /tmp/tensorflow_pkg/${tensorflow_wheel} ]; then
 ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 fi;
 
-if [ ! -e ${TARGET_DIR} ]; then
-mkdir -p ${TARGET_DIR}
-fi;
+popd
 
 if [ ! -e ${TARGET_DIR}/${tensorflow_wheel} ]; then
 cp /tmp/tensorflow_pkg/${tensorflow_wheel} ${TARGET_DIR}
 fi;
+
 if [ ! -e ${TARGET_DIR}/${tensorflow_c_pkg} ]; then
 cp ./bazel-bin/tensorflow/tools/lib_package/${tensorflow_c_pkg} ${TARGET_DIR}
 fi;
 
-## Install tensorflow and components
-#pip install ${TARGET_DIR}/${tensorflow_wheel}
-#tar -C ${CONDA_PREFIX} -xzf ${TARGET_DIR}/${tensorflow_c_pkg}
+fi;
+
+# Build tensorflow-io-gcs-filesystem
+if [ ! -e ${TARGET_DIR}/${tf_io_gcs_wheel} ]; then
+
+if [ ! -e io/dist/${tf_io_gcs_wheel} ]; then
+    pushd io
+    python setup.py bdist_wheel --project tensorflow_io_gcs_filesystem
+    popd
+fi;
+
+cp io/dist/${tf_io_gcs_wheel} ${TARGET_DIR}/${tf_io_gcs_wheel}
+fi;
+
+if [ ! -e ${TARGET_DIR}/${tf_text_wheel} ]; then
+
+if [ ! -e text/${tf_text_wheel} ]; then
+# Prep build env
+pip install -U ${TARGET_DIR}/${tf_io_gcs_wheel} ${TARGET_DIR}/${tensorflow_wheel}
+
+pushd text
+bazel build oss_scripts/pip_package:build_pip_package
+popd
+
+# Clean build env
+pip uninstall -y tensorflow_io_gcs_filesystem tensorflow
+fi;
+
+cp text/${tf_text_wheel} ${TARGET_DIR}
+
+fi;
