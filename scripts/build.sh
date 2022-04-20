@@ -83,7 +83,7 @@ if [ ! -e ./bazel-bin/tensorflow/tools/pip_package/build_pip_package ] || [ ! -e
 
 # Build all needed components
 bazel --output_user_root=${bazel_build_dir} \
-    build --config=opt --verbose_failures --sandbox_debug --action_env=PATH --action_env=LD_LIBRARY_PATH \
+    build --config=opt --verbose_failures --sandbox_debug --action_env=PATH --action_env=LD_LIBRARY_PATH $@ \
         //tensorflow/tools/lib_package:libtensorflow \
         //tensorflow/tools/pip_package:build_pip_package
 

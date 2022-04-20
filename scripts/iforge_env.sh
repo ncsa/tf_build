@@ -5,13 +5,12 @@ conda activate ${CONDA_PREFIX}
 module load gcc/8.3.0
 module load cuda-11.4
 
-export Cluster="Iforge"
-
 export SCRATCH_DIR=/scratch/users/mkrafcz2
 
 export CUDA_DIR="/usr/local/cuda-11.4"
 # For CuDNN
 export CUDNN_DIR=${CONDA_PREFIX}
+export CUDNN_ARCH="x64"
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CONDA_PREFIX}/lib64
 
 # For CUPTI/TensorRT
