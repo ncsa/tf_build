@@ -8,3 +8,6 @@
 [submodule "io"]
 	path = io
 	url = git@github.com:tensorflow/io
+[submodule "libclang"]
+	path = libclang
+	url = git@github.com:sighingnow/libclang
