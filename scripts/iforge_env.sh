@@ -1,5 +1,5 @@
 source ~/conda.sh
-CONDA_PREFIX=$(readlink -f ./venv)
+CONDA_PREFIX=$(readlink -f ./build_venv)
 conda activate ${CONDA_PREFIX}
 
 module load gcc/8.3.0
